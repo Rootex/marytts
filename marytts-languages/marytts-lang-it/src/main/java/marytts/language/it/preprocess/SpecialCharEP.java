@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import marytts.language.it.preprocess.SpecialCharEP.SCEntry;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
@@ -48,9 +49,9 @@ public class SpecialCharEP extends ExpansionPattern {
 	 * known type, the first type (<code>knownTypes[0]</code>) is expected to be the most general one, of which the others are
 	 * specialisations.
 	 */
-	private final List knownTypes = Arrays.asList(_knownTypes);
+	private final List<String> knownTypes = Arrays.asList(_knownTypes);
 
-	public List knownTypes() {
+	public List<String> knownTypes() {
 		return knownTypes;
 	}
 
@@ -80,8 +81,8 @@ public class SpecialCharEP extends ExpansionPattern {
 	 * 
 	 * @return m
 	 */
-	private Map createSpecialCharNames() {
-		HashMap m = new HashMap();
+	private Map<String, SCEntry> createSpecialCharNames() {
+		HashMap<String, SCEntry> m = new HashMap<String, SCEntry>();
 
 		m.put("$", new SCEntry("dollaro", false, true));
 		m.put("@", new SCEntry("chiocciola", true, true));
@@ -111,7 +112,7 @@ public class SpecialCharEP extends ExpansionPattern {
 		return m;
 	};
 
-	private final Map specialCharNames = createSpecialCharNames();
+	private final Map<String, SCEntry> specialCharNames = createSpecialCharNames();
 	protected final String sMatchingChars = createMatchingChars();
 	// protected final String sMatchingChars =
 	// "[\\,\\\\\\!\\#\\$\\%\\&\\'\\*\\+\\-\\/\\=\\?\\^\\_\\`\\{\\|\\}\\~\\(\\)\\[\\]\\@\\:\\;\\\"\\<\\>\\.]";
@@ -127,8 +128,8 @@ public class SpecialCharEP extends ExpansionPattern {
 	 */
 	private String createMatchingChars() {
 		StringBuilder sb = new StringBuilder("[");
-		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
-			sb.append("\\" + (String) it.next());
+		for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
+			sb.append("\\" + it.next());
 		}
 		sb.append("]");
 		return sb.toString();
@@ -137,8 +138,8 @@ public class SpecialCharEP extends ExpansionPattern {
 	/** Only needed to fill sMatchingCharsSimpleString from _specialCharNames[] */
 	private String createMatchingCharsSimpleString() {
 		StringBuilder sb = new StringBuilder();
-		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
-			sb.append((String) it.next());
+		for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
+			sb.append(it.next());
 		}
 		return sb.toString();
 	}
@@ -150,9 +151,9 @@ public class SpecialCharEP extends ExpansionPattern {
 	 */
 	private String createSplitAtChars() {
 		StringBuilder sb = new StringBuilder("[");
-		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
-			String sc = (String) it.next();
-			if (((SCEntry) specialCharNames.get(sc)).splitAt) {
+		for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
+			String sc = it.next();
+			if (specialCharNames.get(sc).splitAt) {
 				sb.append("\\" + sc);
 			}
 		}
@@ -167,9 +168,9 @@ public class SpecialCharEP extends ExpansionPattern {
 	 */
 	private String createSplitAtCharsSimpleString() {
 		StringBuilder sb = new StringBuilder();
-		for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
-			String sc = (String) it.next();
-			if (((SCEntry) specialCharNames.get(sc)).splitAt) {
+		for (Iterator<String> it = specialCharNames.keySet().iterator(); it.hasNext();) {
+			String sc = it.next();
+			if (specialCharNames.get(sc).splitAt) {
 				sb.append(sc);
 			}
 		}
@@ -258,7 +259,7 @@ public class SpecialCharEP extends ExpansionPattern {
 	}
 
 	protected boolean doPronounce(String specialChar) {
-		SCEntry entry = (SCEntry) specialCharNames.get(specialChar);
+		SCEntry entry = specialCharNames.get(specialChar);
 		if (entry == null)
 			return false;
 		return entry.pronounce;
@@ -274,7 +275,7 @@ public class SpecialCharEP extends ExpansionPattern {
 	}
 
 	protected String expandSpecialChar(String s) {
-		SCEntry entry = (SCEntry) specialCharNames.get(s);
+		SCEntry entry = specialCharNames.get(s);
 		if (entry == null)
 			return null;
 		return entry.expand;

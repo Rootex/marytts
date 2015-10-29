@@ -87,10 +87,10 @@ public class AudioFileMixer {
 	 */
 	public static void main(String[] args) throws Exception {
 		if (true) {
-			List audio = new ArrayList(); // to play in parallel to each argument
+			List<DoubleDataSource> audio = new ArrayList<DoubleDataSource>(); // to play in parallel to each argument
 			double[] audioData = null;
-			List referenceAudio = new ArrayList(); // to normalise power
-			List noiseSpecs = new ArrayList();
+			List<BufferedDoubleDataSource> referenceAudio = new ArrayList<BufferedDoubleDataSource>(); // to normalise power
+			List<String> noiseSpecs = new ArrayList<String>();
 			double maxDuration = 0;
 			int i = 0;
 			String prop;
@@ -138,8 +138,8 @@ public class AudioFileMixer {
 				System.err.println("Reference power: " + powerNormaliser.getReferencePower());
 			}
 
-			for (Iterator it = noiseSpecs.iterator(); it.hasNext();) {
-				String spec = (String) it.next();
+			for (Iterator<String> it = noiseSpecs.iterator(); it.hasNext();) {
+				String spec = it.next();
 				String[] info = spec.split(":");
 				double start = 0;
 				if (info.length > 2)
@@ -171,7 +171,7 @@ public class AudioFileMixer {
 			// How to time the audio given as the arguments:
 			double argsStart = Double.valueOf(System.getProperty("audio.args", "0")).doubleValue();
 			for (int k = 0; k < args.length; k++) {
-				List result = new ArrayList();
+				List<DoubleDataSource> result = new ArrayList<DoubleDataSource>();
 				if (audioData != null) {
 					result.add(new BufferedDoubleDataSource(audioData));
 				}

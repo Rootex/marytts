@@ -47,11 +47,11 @@ public class AudioFileJoiner {
 	 *             Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		List startAudio = new ArrayList(); // to prepend to each argument
+		List<DoubleDataSource> startAudio = new ArrayList<DoubleDataSource>(); // to prepend to each argument
 		double[] start = null;
-		List endAudio = new ArrayList(); // to append to each argument
+		List<DoubleDataSource> endAudio = new ArrayList<DoubleDataSource>(); // to append to each argument
 		double[] end = null;
-		List referenceAudio = new ArrayList(); // to normalise power
+		List<DoubleDataSource> referenceAudio = new ArrayList<DoubleDataSource>(); // to normalise power
 		int i = 0;
 		String prop;
 		// The audio format of the first argument is the target format!
@@ -97,7 +97,7 @@ public class AudioFileJoiner {
 		}
 
 		for (int k = 0; k < args.length; k++) {
-			List result = new ArrayList();
+			List<DoubleDataSource> result = new ArrayList<DoubleDataSource>();
 			if (start != null) {
 				result.add(new BufferedDoubleDataSource(start));
 			}

@@ -63,11 +63,11 @@ public class QualityControl extends VoiceImportComponent {
 	protected String labExt = ".lab";
 	private PrintWriter outFileWriter;
 	private PrintWriter priorityFileWriter;
-	private Map fricativeThresholds;
-	private ArrayList silenceEnergyList;
+	private Map<String, Double> fricativeThresholds;
+	private ArrayList<Double> silenceEnergyList;
 	private double sileceThreshold;
-	private TreeMap allProblems;
-	private TreeMap priorityProblems;
+	private TreeMap<String, ArrayList<String>> allProblems;
+	private TreeMap<String, Integer> priorityProblems;
 	private String unit;
 	private String baseN;
 
@@ -97,10 +97,10 @@ public class QualityControl extends VoiceImportComponent {
 
 	}
 
-	public SortedMap getDefaultProps(DatabaseLayout db) {
+	public SortedMap<String, String> getDefaultProps(DatabaseLayout db) {
 		this.db = db;
 		if (props == null) {
-			props = new TreeMap();
+			props = new TreeMap<String, String>();
 			props.put(FEATUREDIR, db.getProp(db.ROOTDIR) + "phonefeatures" + System.getProperty("file.separator"));
 			props.put(LABELDIR, db.getProp(db.ROOTDIR) + "phonelab" + System.getProperty("file.separator"));
 			props.put(OUTFILE, db.getProp(db.ROOTDIR) + "QualityControl_Problems.txt");
@@ -115,7 +115,7 @@ public class QualityControl extends VoiceImportComponent {
 	}
 
 	protected void setupHelp() {
-		props2Help = new TreeMap();
+		props2Help = new TreeMap<String, String>();
 		props2Help.put(FEATUREDIR, "directory containing the phone features.");
 		props2Help.put(LABELDIR, "directory containing the phone labels");
 		props2Help.put(OUTFILE, "Output file which shows suspicious alignments");
@@ -142,7 +142,7 @@ public class QualityControl extends VoiceImportComponent {
 		progress = 0;
 		int bnlLengthIn = bnl.getLength();
 		System.out.println("Searching for Suspicious Alignments (Labels) in " + bnlLengthIn + " utterances....");
-		Map fricativeHash = createHashMaps();
+		Map<String, ArrayList<Double>> fricativeHash = createHashMaps();
 		if (getProp(MHFREQEGY).equals("true")) {
 			fricativeThresholds = getFricativeThresholds(fricativeHash);
 		}
@@ -150,8 +150,8 @@ public class QualityControl extends VoiceImportComponent {
 			sileceThreshold = getSilenceThreshold();
 		}
 
-		allProblems = new TreeMap();
-		priorityProblems = new TreeMap();
+		allProblems = new TreeMap<String, ArrayList<String>>();
+		priorityProblems = new TreeMap<String, Integer>();
 
 		for (int i = 0; i < bnl.getLength(); i++) {
 			progress = 50 + (50 * i / bnl.getLength());
@@ -234,10 +234,10 @@ public class QualityControl extends VoiceImportComponent {
 			line = labels.readLine();
 			labelUnit = null;
 			if (line != null) {
-				List labelUnitData = getLabelUnitData(line);
-				labelUnit = (String) labelUnitData.get(2);
-				unitIndex = Integer.parseInt((String) labelUnitData.get(1));
-				endTimeStamp = Double.parseDouble((String) labelUnitData.get(0));
+				List<String> labelUnitData = getLabelUnitData(line);
+				labelUnit = labelUnitData.get(2);
+				unitIndex = Integer.parseInt(labelUnitData.get(1));
+				endTimeStamp = Double.parseDouble(labelUnitData.get(0));
 			}
 			line = features.readLine();
 			String featureUnit = getFeatureUnit(line);
@@ -287,16 +287,16 @@ public class QualityControl extends VoiceImportComponent {
 
 			if (!"".equals(currentProblem)) {
 				if (allProblems.containsKey(basename)) {
-					ArrayList arrList = (ArrayList) allProblems.get(basename);
+					ArrayList<String> arrList = allProblems.get(basename);
 					arrList.add(currentProblem);
 					allProblems.put(basename, arrList);
 				} else {
-					ArrayList arrList = new ArrayList();
+					ArrayList<String> arrList = new ArrayList<String>();
 					arrList.add(currentProblem);
 					allProblems.put(basename, arrList);
 				}
 				if (priorityProblems.containsKey(basename)) {
-					Integer problemCost = (Integer) priorityProblems.get(basename);
+					Integer problemCost = priorityProblems.get(basename);
 					problemCost = problemCost + cost;
 					priorityProblems.put(basename, problemCost);
 				} else {
@@ -321,10 +321,10 @@ public class QualityControl extends VoiceImportComponent {
 	 * @throws Exception
 	 *             Exception
 	 */
-	private Map createHashMaps() throws IOException, Exception {
+	private Map<String, ArrayList<Double>> createHashMaps() throws IOException, Exception {
 
-		Map fricativeHash = new HashMap();
-		silenceEnergyList = new ArrayList();
+		Map<String, ArrayList<Double>> fricativeHash = new HashMap<String, ArrayList<Double>>();
+		silenceEnergyList = new ArrayList<Double>();
 
 		for (int baseCnt = 0; baseCnt < bnl.getLength(); baseCnt++) {
 
@@ -381,10 +381,10 @@ public class QualityControl extends VoiceImportComponent {
 				line = labels.readLine();
 				labelUnit = null;
 				if (line != null) {
-					List labelUnitData = getLabelUnitData(line);
-					labelUnit = (String) labelUnitData.get(2);
-					unitIndex = Integer.parseInt((String) labelUnitData.get(1));
-					endTimeStamp = Double.parseDouble((String) labelUnitData.get(0));
+					List<String> labelUnitData = getLabelUnitData(line);
+					labelUnit = labelUnitData.get(2);
+					unitIndex = Integer.parseInt(labelUnitData.get(1));
+					endTimeStamp = Double.parseDouble(labelUnitData.get(0));
 				}
 
 				line = features.readLine();
@@ -406,11 +406,11 @@ public class QualityControl extends VoiceImportComponent {
 
 					double fricEnergy = getFricativeEnergy(signal, samplingRate, startTimeStamp, endTimeStamp, labelUnit);
 					if (fricativeHash.containsKey(featureUnit)) {
-						ArrayList arrList = (ArrayList) fricativeHash.get(featureUnit);
+						ArrayList<Double> arrList = fricativeHash.get(featureUnit);
 						arrList.add(new Double(fricEnergy));
 						fricativeHash.put(featureUnit, arrList);
 					} else {
-						ArrayList arrList = new ArrayList();
+						ArrayList<Double> arrList = new ArrayList<Double>();
 						arrList.add(new Double(fricEnergy));
 						fricativeHash.put(featureUnit, arrList);
 					}
@@ -437,13 +437,13 @@ public class QualityControl extends VoiceImportComponent {
 	 *            fricativeHash
 	 * @return HashMap which contains indivisual fricative Thresholds
 	 */
-	private Map getFricativeThresholds(Map fricativeHash) {
+	private Map<String, Double> getFricativeThresholds(Map<String, ArrayList<Double>> fricativeHash) {
 
-		Map hashThresholds = new HashMap();
+		Map<String, Double> hashThresholds = new HashMap<String, Double>();
 
 		for (Iterator it = fricativeHash.entrySet().iterator(); it.hasNext();) {
 			Map.Entry e = (Map.Entry) it.next();
-			ArrayList arr = (ArrayList) e.getValue();
+			ArrayList<Double> arr = (ArrayList<Double>) e.getValue();
 			double[] arrVal = listToArray(arr);
 			double meanVal = MathUtils.mean(arrVal);
 			double stDev = MathUtils.standardDeviation(arrVal, 1);
@@ -559,7 +559,7 @@ public class QualityControl extends VoiceImportComponent {
 			String baseName = bnl.getName(i);
 			if (allProblems.containsKey(baseName)) {
 				// outFileWriter.println(baseName);
-				ArrayList arrList = (ArrayList) allProblems.get(baseName);
+				ArrayList arrList = allProblems.get(baseName);
 				for (Iterator it = arrList.iterator(); it.hasNext();) {
 					String eachProblem = (String) it.next();
 					outFileWriter.println(baseName + "\t" + eachProblem);
@@ -645,7 +645,7 @@ public class QualityControl extends VoiceImportComponent {
 
 		double higherFreqEnergy = SignalProcUtils.getEnergy(highFreqSamples);
 
-		Double cutofEnergy = (Double) fricativeThresholds.get(unitName);
+		Double cutofEnergy = fricativeThresholds.get(unitName);
 		// System.out.println("High Freq. Energy :  "+ unitName + " Energy : "+ higherFreqEnergy + "-- Threshold : "+
 		// cutofEnergy.doubleValue());
 		if (higherFreqEnergy < cutofEnergy.doubleValue())
@@ -766,10 +766,10 @@ public class QualityControl extends VoiceImportComponent {
 	 * @throws IOException
 	 *             IOException
 	 */
-	private ArrayList getLabelUnitData(String line) throws IOException {
+	private ArrayList<String> getLabelUnitData(String line) throws IOException {
 		if (line == null)
 			return null;
-		ArrayList unitData = new ArrayList();
+		ArrayList<String> unitData = new ArrayList<String>();
 		StringTokenizer st = new StringTokenizer(line.trim());
 		// the first token is the time
 		unitData.add(st.nextToken());
@@ -787,12 +787,12 @@ public class QualityControl extends VoiceImportComponent {
 	 *            ArrayList
 	 * @return double array
 	 */
-	private double[] listToArray(ArrayList array) {
+	private double[] listToArray(ArrayList<Double> array) {
 
 		double[] doubleArray = new double[array.size()];
-		Iterator it = array.iterator();
+		Iterator<Double> it = array.iterator();
 		for (int i = 0; it.hasNext(); i++) {
-			Double tempDouble = (Double) it.next();
+			Double tempDouble = it.next();
 			doubleArray[i] = tempDouble.doubleValue();
 		}
 		return doubleArray;

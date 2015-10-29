@@ -96,7 +96,7 @@ public class SortTestResults {
 		double[] cdCovArray = new double[resultList.size()];
 		double[] coCovArray = new double[resultList.size()];
 		int index = 0;
-		for (Iterator it = resultList.iterator(); it.hasNext();) {
+		for (Iterator<TestResult> it = resultList.iterator(); it.hasNext();) {
 			TestResult nextResult = (TestResult) it.next();
 			// sort according to simpleDiphone coverage
 			double cov = nextResult.getSimpleDiphoneCoverage();
@@ -163,10 +163,10 @@ public class SortTestResults {
 
 	private static void sort(SortedMap sortMap, TestResult result, Object coverage) {
 		if (sortMap.containsKey(coverage)) {
-			List nextResultList = (List) sortMap.get(coverage);
+			List<TestResult> nextResultList = (List<TestResult>) sortMap.get(coverage);
 			nextResultList.add(result);
 		} else {
-			List nextResultList = new ArrayList();
+			List<TestResult> nextResultList = new ArrayList<TestResult>();
 			nextResultList.add(result);
 			sortMap.put(coverage, nextResultList);
 		}
@@ -209,7 +209,7 @@ public class SortTestResults {
 
 	private static void printSameResults(PrintWriter out, List resultList, double[] sdCovArray, double[] soCovArray,
 			double[] cdCovArray, double[] coCovArray, boolean justSettings) {
-		List sameResults = new ArrayList();
+		List<List> sameResults = new ArrayList<List>();
 		for (int i = 0; i < resultList.size(); i++) {
 			TestResult nextResult = (TestResult) resultList.get(i);
 			double sdCov = sdCovArray[i];
@@ -240,8 +240,8 @@ public class SortTestResults {
 		}
 
 		// print the list of same results
-		for (Iterator it = sameResults.iterator(); it.hasNext();) {
-			List nextResultList = (List) it.next();
+		for (Iterator<List> it = sameResults.iterator(); it.hasNext();) {
+			List nextResultList = it.next();
 			if (justSettings) {
 				for (Iterator it2 = nextResultList.iterator(); it2.hasNext();) {
 					out.println(((TestResult) it2.next()).getSettings());
