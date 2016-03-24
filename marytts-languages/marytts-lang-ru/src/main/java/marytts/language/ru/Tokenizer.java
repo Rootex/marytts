@@ -24,7 +24,6 @@ import java.util.Locale;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.language.ru.preprocess.ExpansionPattern;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
@@ -43,18 +42,14 @@ public class Tokenizer extends marytts.modules.JTokeniser {
 	/**
      * 
      */
-	Preprocess p;
 	public Tokenizer() {
 		super(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale("ru"));
 		setTokenizerLanguage("en");
 	}
 	Element t = null;
 	public MaryData process(MaryData d) throws Exception {
-		p = new Preprocess();
 		MaryData result = super.process(d);
 		splitOffDots(result);
-		result = p.process(result);
-//		logger.info("`+++++++++ The result in rusian "+ result +" +++++++++"  );
 		return result;
 	}
 
